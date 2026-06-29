@@ -10,6 +10,10 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* The HTML [hidden] attribute MUST win over author display rules.
+   Without this, .error-overlay{display:flex} overrides [hidden] and the
+   error card shows on every device even when no error occurred. */
+[hidden] { display: none !important; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
 
