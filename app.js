@@ -170,9 +170,14 @@
      ---------------------------------------------------------------------- */
   function initThree() {
     const renderer = new THREE.WebGLRenderer({
-      canvas: els.overlay, alpha: true, antialias: true, preserveDrawingBuffer: true,
+      canvas: els.overlay, alpha: true, antialias: true,
+      preserveDrawingBuffer: true, premultipliedAlpha: false,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // CRITICAL for mobile: force a fully transparent clear so the overlay
+    // canvas never paints an opaque black rectangle over the camera video.
+    renderer.setClearColor(0x000000, 0);
+    renderer.setClearAlpha(0);
 
     // Orthographic camera: a normalized -1..1 space mapped to the viewport,
     // so face-tracking coords (also normalized) map cleanly onto the plane.
@@ -536,6 +541,8 @@
     els.statusChip.addEventListener('click', () => {
       if (++chipTaps >= 3) { state.debug = true; }
     });
+
+    if (state.debug) updateDebug('(booting)');
 
     if (!checkEnvironment()) return;
     wireUI();
