@@ -52,12 +52,21 @@
      Error handling
      ---------------------------------------------------------------------- */
   function fatalError(title, message) {
-    els.loading.hidden = true;
-    els.loading.style.display = 'none';
-    els.errorTitle.textContent = title;
-    els.errorMessage.textContent = message;
-    els.errorOverlay.hidden = false;
+    if (els.loading) { els.loading.hidden = true; els.loading.style.display = 'none'; }
+    if (els.errorTitle) els.errorTitle.textContent = title;
+    if (els.errorMessage) els.errorMessage.textContent = message;
+    if (els.errorOverlay) els.errorOverlay.hidden = false;
   }
+
+  // Catch-all so the card never just says the default text — it shows the real cause.
+  window.addEventListener('error', (e) => {
+    fatalError('JS error', (e.message || 'unknown') + ' @ ' +
+      (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno || '?'));
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    const r = e.reason;
+    fatalError('Promise error', (r && r.message) ? r.message : String(r));
+  });
 
   function setLoading(text) {
     if (text === null) { els.loading.style.display = 'none'; return; }
