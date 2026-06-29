@@ -342,9 +342,58 @@
       }
       throw err;
     }
-    els.video.srcObject = stream;
-    await new Promise(r => { els.video.onloadedmetadata = () => { els.video.play(); r(); }; });
     state.stream = stream;
+
+    const v = els.video;
+    // iOS Safari needs these set as properties before play()
+    v.setAttribute('playsinline', '');
+    v.setAttribute('webkit-playsinline', '');
+    v.muted = true;
+    v.srcObject = stream;
+
+    // Wait for metadata, but don't hang if it already fired.
+    await new Promise((resolve) => {
+      if (v.readyState >= 1 && v.videoWidth > 0) return resolve();
+      const done = () => { v.removeEventListener('loadedmetadata', done); resolve(); };
+      v.addEventListener('loadedmetadata', done);
+      // Safety timeout: proceed even if the event is flaky on some mobiles
+      setTimeout(resolve, 2500);
+    });
+
+    // Try to play. On mobile this can reject if not from a gesture —
+    // fall back to a tap-to-start overlay so the user gesture unblocks it.
+    try {
+      await v.play();
+    } catch (e) {
+      await waitForTapToStart();
+      try { await v.play(); } catch (_) {}
+    }
+  }
+
+  // Shows a tap prompt; resolves on first tap (provides the user gesture iOS wants).
+  function waitForTapToStart() {
+    return new Promise((resolve) => {
+      setLoading(null);
+      let tap = document.getElementById('tapStart');
+      if (!tap) {
+        tap = document.createElement('div');
+        tap.id = 'tapStart';
+        tap.style.cssText =
+          'position:absolute;inset:0;z-index:30;display:flex;align-items:center;' +
+          'justify-content:center;flex-direction:column;gap:14px;color:#fff;' +
+          'background:rgba(11,13,18,0.85);font-size:16px;text-align:center;padding:24px;';
+        tap.innerHTML = '<div style="font-size:40px">📷</div>' +
+          '<div>Tap anywhere to start the camera</div>';
+        els.stage.appendChild(tap);
+      }
+      tap.style.display = 'flex';
+      const handler = () => {
+        tap.removeEventListener('click', handler);
+        tap.style.display = 'none';
+        resolve();
+      };
+      tap.addEventListener('click', handler);
+    });
   }
 
   function initFaceMesh() {
@@ -366,6 +415,8 @@
     state.rafRunning = true;
 
     let sending = false;
+    let frames = 0;
+    let trackerErr = '';
     const tick = async () => {
       if (!state.rafRunning) return;
 
@@ -373,15 +424,35 @@
       if (!sending && els.video.readyState >= 2) {
         sending = true;
         try { await state.faceMesh.send({ image: els.video }); }
-        catch (e) { /* transient */ }
+        catch (e) { trackerErr = (e && e.message) ? e.message : String(e); }
         sending = false;
       }
 
       updateHairTransform();
       state.three.renderer.render(state.three.scene, state.three.camera);
+
+      if (state.debug && (++frames % 15 === 0)) updateDebug(trackerErr);
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
+  }
+
+  function updateDebug(trackerErr) {
+    let d = document.getElementById('dbg');
+    if (!d) {
+      d = document.createElement('div');
+      d.id = 'dbg';
+      d.style.cssText = 'position:absolute;top:56px;left:8px;z-index:9;font:11px monospace;' +
+        'color:#9effa0;background:rgba(0,0,0,0.6);padding:6px 8px;border-radius:8px;' +
+        'white-space:pre;pointer-events:none;max-width:90%;';
+      els.stage.appendChild(d);
+    }
+    const v = els.video;
+    d.textContent =
+      `video: ${v.videoWidth}x${v.videoHeight} ready=${v.readyState} paused=${v.paused}\n` +
+      `face: ${state.tracking.detected ? 'YES' : 'no'} conf=${state.tracking.confidence}\n` +
+      `THREE=${typeof THREE} FaceMesh=${typeof FaceMesh}\n` +
+      `trackerErr: ${trackerErr || '—'}`;
   }
 
   /* ----------------------------------------------------------------------
@@ -459,6 +530,13 @@
      Boot
      ---------------------------------------------------------------------- */
   async function main() {
+    // Debug mode: open ...?debug=1  OR tap the status chip 3x
+    state.debug = new URLSearchParams(location.search).has('debug');
+    let chipTaps = 0;
+    els.statusChip.addEventListener('click', () => {
+      if (++chipTaps >= 3) { state.debug = true; }
+    });
+
     if (!checkEnvironment()) return;
     wireUI();
 
