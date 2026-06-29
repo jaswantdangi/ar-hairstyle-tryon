@@ -55,7 +55,25 @@
     if (els.loading) { els.loading.hidden = true; els.loading.style.display = 'none'; }
     if (els.errorTitle) els.errorTitle.textContent = title;
     if (els.errorMessage) els.errorMessage.textContent = message;
+    const detail = document.getElementById('errorDetail');
+    if (detail && !detail.textContent) detail.textContent = envReport();
     if (els.errorOverlay) els.errorOverlay.hidden = false;
+  }
+
+  // One-shot device/environment snapshot to diagnose mobile-only failures.
+  function envReport() {
+    let webgl = 'no', webgl2 = 'no';
+    try { const c = document.createElement('canvas');
+      webgl = (c.getContext('webgl') || c.getContext('experimental-webgl')) ? 'yes' : 'no';
+      webgl2 = c.getContext('webgl2') ? 'yes' : 'no';
+    } catch (e) {}
+    return [
+      'secureCtx: ' + window.isSecureContext,
+      'getUserMedia: ' + !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+      'WebGL: ' + webgl + '  WebGL2: ' + webgl2,
+      'THREE: ' + (typeof THREE) + '  FaceMesh: ' + (typeof FaceMesh),
+      'UA: ' + navigator.userAgent,
+    ].join('\n');
   }
 
   // Catch-all so the card never just says the default text — it shows the real cause.

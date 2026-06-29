@@ -13,7 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js" crossorigin="anonymous"></script>
 
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
   <div class="tryon-root">
@@ -39,7 +39,8 @@
       <div class="error-card">
         <div class="error-icon">⚠️</div>
         <h2 id="errorTitle">Something went wrong</h2>
-        <p id="errorMessage">—</p>
+        <p id="errorMessage" style="font-size:15px;color:#ffd0d0;">—</p>
+        <pre id="errorDetail" style="font:11px monospace;color:#9aa3b2;white-space:pre-wrap;word-break:break-word;max-width:340px;text-align:left;background:rgba(0,0,0,0.4);padding:10px;border-radius:8px;margin:0 0 14px;"></pre>
         <button class="btn btn-primary" onclick="location.reload()">Reload</button>
       </div>
     </div>
@@ -79,8 +80,8 @@
   </div>
 
   <!-- Version badge so you can confirm the latest build is running -->
-  <div id="verBadge" style="position:absolute;bottom:2px;right:6px;z-index:8;font:10px monospace;color:rgba(255,255,255,0.5);pointer-events:none;">v6</div>
+  <div id="verBadge" style="position:absolute;bottom:2px;right:6px;z-index:8;font:10px monospace;color:rgba(255,255,255,0.5);pointer-events:none;">v7</div>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
