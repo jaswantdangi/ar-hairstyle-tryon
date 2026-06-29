@@ -1,0 +1,35 @@
+[
+  {
+    "id": "hair-01",
+    "name": "Classic Short",
+    "type": "png",
+    "thumbnailUrl": "hairstyles/hairstyle-01.png",
+    "assetUrl": "hairstyles/hairstyle-01.png",
+    "scaleFactor": 2.6,
+    "offsetX": 0,
+    "offsetY": 0.35,
+    "rotationOffset": 0
+  },
+  {
+    "id": "hair-02",
+    "name": "Long Wavy",
+    "type": "png",
+    "thumbnailUrl": "hairstyles/hairstyle-02.png",
+    "assetUrl": "hairstyles/hairstyle-02.png",
+    "scaleFactor": 2.9,
+    "offsetX": 0,
+    "offsetY": 0.3,
+    "rotationOffset": 0
+  },
+  {
+    "id": "hair-03",
+    "name": "Curly Afro",
+    "type": "png",
+    "thumbnailUrl": "hairstyles/hairstyle-03.png",
+    "assetUrl": "hairstyles/hairstyle-03.png",
+    "scaleFactor": 3.1,
+    "offsetX": 0,
+    "offsetY": 0.45,
+    "rotationOffset": 0
+  }
+]

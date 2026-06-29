@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>AR Hairstyle Try-On — Demo</title>
+
+  <!-- Three.js + MediaPipe FaceMesh via CDN (no build step needed for the demo) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="tryon-root">
+    <!-- Camera + render layers -->
+    <div class="stage" id="stage">
+      <video id="camera" autoplay playsinline muted></video>
+      <!-- Three.js renderer canvas is injected here, mirrored to match the camera -->
+      <canvas id="overlay"></canvas>
+    </div>
+
+    <!-- Top status / banners -->
+    <div class="top-bar">
+      <div class="brand">
+        <span class="dot"></span> AR Hairstyle Try-On
+      </div>
+      <div class="status-chip" id="statusChip">Starting…</div>
+    </div>
+
+    <div class="hint" id="faceHint">Align your face inside the frame</div>
+
+    <!-- Fatal / permission error overlay -->
+    <div class="error-overlay" id="errorOverlay" hidden>
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <h2 id="errorTitle">Something went wrong</h2>
+        <p id="errorMessage">—</p>
+        <button class="btn btn-primary" onclick="location.reload()">Reload</button>
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <p id="loadingText">Loading face tracker…</p>
+    </div>
+
+    <!-- Bottom controls -->
+    <div class="bottom-panel">
+      <div class="hairstyle-strip" id="hairstyleStrip"><!-- thumbnails injected --></div>
+
+      <!-- Calibration sliders (live tuning, mirrors the per-asset config in the guide) -->
+      <div class="calib" id="calib">
+        <label>Scale <input type="range" id="cScale" min="0.5" max="3" step="0.01" value="1.65"><span id="vScale">1.65</span></label>
+        <label>Offset Y <input type="range" id="cOffY" min="-1" max="0.5" step="0.01" value="-0.42"><span id="vOffY">-0.42</span></label>
+        <label>Offset X <input type="range" id="cOffX" min="-0.5" max="0.5" step="0.01" value="0"><span id="vOffX">0</span></label>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-ghost" id="btnCalib" title="Toggle calibration">⚙︎ Tune</button>
+        <button class="btn btn-capture" id="btnCapture" title="Capture">●</button>
+        <button class="btn btn-ghost" id="btnReset" title="Reset">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- Capture result preview -->
+    <div class="capture-overlay" id="captureOverlay" hidden>
+      <img id="captureImg" alt="Captured preview" />
+      <div class="capture-actions">
+        <a class="btn btn-primary" id="btnDownload" download="hairstyle-tryon.png">Download PNG</a>
+        <button class="btn btn-ghost" id="btnCloseCapture">Back to camera</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

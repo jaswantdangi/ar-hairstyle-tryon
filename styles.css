@@ -1,0 +1,143 @@
+:root {
+  --bg: #0b0d12;
+  --panel: rgba(16, 19, 27, 0.72);
+  --accent: #6ea8ff;
+  --accent-2: #9b6cff;
+  --text: #eef1f7;
+  --muted: #9aa3b2;
+  --ok: #36d399;
+  --warn: #f5b454;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+
+.tryon-root { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ---------- Stage (camera + overlay) ---------- */
+.stage { position: absolute; inset: 0; overflow: hidden; background: #000; }
+#camera, #overlay {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  /* Mirror so it behaves like a selfie camera */
+  transform: scaleX(-1);
+}
+#overlay { pointer-events: none; }
+
+/* ---------- Top bar ---------- */
+.top-bar {
+  position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; gap: 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0));
+}
+.brand { font-weight: 600; font-size: 15px; letter-spacing: 0.2px; display: flex; align-items: center; gap: 8px; }
+.brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 10px var(--accent); }
+.status-chip {
+  font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); color: var(--muted); border: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+}
+.status-chip.ok { color: var(--ok); border-color: rgba(54,211,153,0.35); background: rgba(54,211,153,0.1); }
+.status-chip.searching { color: var(--warn); border-color: rgba(245,180,84,0.3); background: rgba(245,180,84,0.1); }
+
+/* ---------- Center hint ---------- */
+.hint {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 4; padding: 10px 18px; border-radius: 12px;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+  font-size: 14px; color: var(--text); border: 1px solid rgba(255,255,255,0.1);
+  transition: opacity 0.25s ease; pointer-events: none;
+}
+.hint.hidden { opacity: 0; }
+
+/* ---------- Bottom panel ---------- */
+.bottom-panel {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
+  padding: 12px 12px calc(14px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0));
+}
+
+.hairstyle-strip {
+  display: flex; gap: 10px; overflow-x: auto; padding: 6px 4px 12px;
+  scrollbar-width: none;
+}
+.hairstyle-strip::-webkit-scrollbar { display: none; }
+
+.thumb {
+  flex: 0 0 auto; width: 60px; height: 60px; border-radius: 14px; cursor: pointer;
+  background: var(--panel); border: 2px solid transparent;
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.thumb img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.thumb .thumb-label {
+  position: absolute; bottom: 0; left: 0; right: 0; font-size: 9px; text-align: center;
+  padding: 2px; background: rgba(0,0,0,0.55); color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.thumb.active { border-color: var(--accent); transform: translateY(-3px); }
+.thumb.none { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+/* ---------- Calibration ---------- */
+.calib {
+  display: none; flex-direction: column; gap: 8px; padding: 12px;
+  background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; margin-bottom: 12px; backdrop-filter: blur(8px);
+}
+.calib.show { display: flex; }
+.calib label { display: grid; grid-template-columns: 70px 1fr 48px; align-items: center;
+  gap: 10px; font-size: 12px; color: var(--muted); }
+.calib input[type=range] { width: 100%; accent-color: var(--accent); }
+.calib span { font-variant-numeric: tabular-nums; text-align: right; color: var(--text); }
+
+/* ---------- Actions ---------- */
+.action-bar { display: flex; align-items: center; justify-content: center; gap: 22px; }
+
+.btn { font-family: inherit; cursor: pointer; border: none; border-radius: 12px;
+  font-weight: 600; transition: transform 0.12s ease, background 0.15s ease; }
+.btn:active { transform: scale(0.95); }
+
+.btn-ghost { background: var(--panel); color: var(--text); padding: 10px 14px; font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+  padding: 12px 20px; font-size: 14px; text-decoration: none; display: inline-block; }
+
+.btn-capture {
+  width: 70px; height: 70px; border-radius: 50%; font-size: 0;
+  background: #fff; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.btn-capture::after { content: ""; position: absolute; inset: 5px; border-radius: 50%;
+  border: 3px solid #0b0d12; }
+
+/* ---------- Overlays ---------- */
+.loading-overlay, .error-overlay {
+  position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  background: rgba(11,13,18,0.92); backdrop-filter: blur(4px); text-align: center; padding: 24px;
+}
+.spinner { width: 44px; height: 44px; border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.15); border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay p { color: var(--muted); font-size: 14px; }
+
+.error-card { max-width: 360px; }
+.error-icon { font-size: 42px; }
+.error-card h2 { margin: 12px 0 6px; font-size: 18px; }
+.error-card p { color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 18px; }
+
+.capture-overlay {
+  position: absolute; inset: 0; z-index: 25; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px; padding: 20px;
+  background: rgba(11,13,18,0.95);
+}
+.capture-overlay img { max-width: 100%; max-height: 70vh; border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.capture-actions { display: flex; gap: 12px; }
+
+@media (min-width: 640px) {
+  .stage, #camera, #overlay { max-width: 480px; left: 50%; transform: translateX(-50%) scaleX(-1); }
+  .stage { box-shadow: 0 0 60px rgba(0,0,0,0.5); }
+}
